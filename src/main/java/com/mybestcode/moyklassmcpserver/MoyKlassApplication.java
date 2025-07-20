@@ -15,4 +15,11 @@ public class MoyKlassApplication {
         SpringApplication.run(MoyKlassApplication.class, args);
     }
 
+    @Bean
+    public ToolCallbackProvider classTools(ClassService classService) {
+        return MethodToolCallbackProvider.builder()
+                .toolObjects(classService)
+                .build();
+    }
+
 }

@@ -18,9 +18,9 @@ public class ClassClient {
     public List<Class> getClasses(
             Boolean includeImages,
             Boolean includeAttributes,
-            Long courseId,
-            Integer filialId,
-            Long classId,
+            List<Long> courseIds,
+            List<Integer> filialIds,
+            List <Long> classIds,
             Boolean includeStats
     ) {
         return webClient.get()
@@ -28,9 +28,9 @@ public class ClassClient {
                         .path("/v1/company/classes")
                         .queryParamIfPresent("includeImages", Optional.ofNullable(includeImages))
                         .queryParamIfPresent("includeAttributes", Optional.ofNullable(includeAttributes))
-                        .queryParamIfPresent("courseId", Optional.ofNullable(courseId))
-                        .queryParamIfPresent("filialId", Optional.ofNullable(filialId))
-                        .queryParamIfPresent("classId", Optional.ofNullable(classId))
+                        .queryParamIfPresent("courseId", Optional.ofNullable(courseIds))
+                        .queryParamIfPresent("filialId", Optional.ofNullable(filialIds))
+                        .queryParamIfPresent("classId", Optional.ofNullable(classIds))
                         .queryParamIfPresent("includeStats", Optional.ofNullable(includeStats))
                         .build())
                 .retrieve()

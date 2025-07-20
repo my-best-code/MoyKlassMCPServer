@@ -1,8 +1,6 @@
 package com.mybestcode.moyklassmcpserver.controller;
 
 import com.mybestcode.moyklassmcpserver.model.Class;
-import com.mybestcode.moyklassmcpserver.model.Course;
-import com.mybestcode.moyklassmcpserver.model.CourseType;
 import com.mybestcode.moyklassmcpserver.servie.ClassService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,12 +22,12 @@ public class ClassController {
     public List<Class> getClasses(
             @RequestParam(required = false) Boolean includeImages,
             @RequestParam(required = false) Boolean includeAttributes,
-            @RequestParam(required = false) Long courseId,
-            @RequestParam(required = false) Integer filialId,
-            @RequestParam(required = false) Long classId,
+            @RequestParam(required = false) List <Long> courseId,
+            @RequestParam(required = false) List <Integer> filialId,
+            @RequestParam(required = false) List <Long> classId,
             @RequestParam(required = false) Boolean includeStats
     ) {
-        return classService.fetchClasses(
+        return classService.searchClasses(
                 includeImages, includeAttributes, courseId, filialId, classId, includeStats
         );
     }
