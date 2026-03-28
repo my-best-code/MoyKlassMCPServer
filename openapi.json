@@ -1,0 +1,213 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "MoyKlass CRM API",
+    "description": "Read-only access to MoyKlass CRM: students, groups, lessons, subscriptions, tasks, and enrollment records.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    { "url": "https://REPLACE_WITH_API_GATEWAY_URL/prod" }
+  ],
+  "security": [{ "ApiKey": [] }],
+  "paths": {
+    "/joins": {
+      "get": {
+        "operationId": "listJoins",
+        "summary": "List student enrollments in groups",
+        "parameters": [
+          { "name": "classId", "in": "query", "schema": { "type": "integer" }, "description": "Filter by group ID" },
+          { "name": "userId", "in": "query", "schema": { "type": "integer" }, "description": "Filter by student ID" },
+          { "name": "statusId", "in": "query", "schema": { "type": "integer" }, "description": "Filter by enrollment status ID" },
+          { "name": "offset", "in": "query", "schema": { "type": "integer", "default": 0 } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 100, "maximum": 500 } }
+        ],
+        "responses": { "200": { "description": "List of enrollments", "content": { "application/json": { "schema": { "type": "object" } } } } }
+      }
+    },
+    "/joins/{joinId}": {
+      "get": {
+        "operationId": "getJoin",
+        "summary": "Get enrollment details by ID",
+        "parameters": [
+          { "name": "joinId", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "Enrollment details", "content": { "application/json": { "schema": { "type": "object" } } } } }
+      }
+    },
+    "/users": {
+      "get": {
+        "operationId": "listUsers",
+        "summary": "List students",
+        "parameters": [
+          { "name": "name", "in": "query", "schema": { "type": "string" }, "description": "Filter by name substring" },
+          { "name": "phone", "in": "query", "schema": { "type": "string" }, "description": "Filter by phone substring" },
+          { "name": "email", "in": "query", "schema": { "type": "string" }, "description": "Filter by email substring" },
+          { "name": "offset", "in": "query", "schema": { "type": "integer", "default": 0 } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 100, "maximum": 500 } },
+          { "name": "sort", "in": "query", "schema": { "type": "string", "enum": ["id", "name", "createdAt", "updatedAt"] } },
+          { "name": "sortDirection", "in": "query", "schema": { "type": "string", "enum": ["asc", "desc"] } }
+        ],
+        "responses": { "200": { "description": "List of students", "content": { "application/json": { "schema": { "type": "object" } } } } }
+      }
+    },
+    "/users/{userId}": {
+      "get": {
+        "operationId": "getUser",
+        "summary": "Get student details by ID",
+        "parameters": [
+          { "name": "userId", "in": "path", "required": true, "schema": { "type": "integer" } },
+          { "name": "includeJoins", "in": "query", "schema": { "type": "boolean" }, "description": "Include student's group enrollments" }
+        ],
+        "responses": { "200": { "description": "Student details", "content": { "application/json": { "schema": { "type": "object" } } } } }
+      }
+    },
+    "/userTags": {
+      "get": {
+        "operationId": "listUserTags",
+        "summary": "List all student tags",
+        "responses": { "200": { "description": "List of tags", "content": { "application/json": { "schema": { "type": "object" } } } } }
+      }
+    },
+    "/tasks": {
+      "get": {
+        "operationId": "listTasks",
+        "summary": "List tasks",
+        "parameters": [
+          { "name": "userId", "in": "query", "schema": { "type": "integer" }, "description": "Filter by student ID" },
+          { "name": "managerId", "in": "query", "schema": { "type": "integer" }, "description": "Filter by manager ID" },
+          { "name": "isComplete", "in": "query", "schema": { "type": "boolean" }, "description": "true = completed, false = pending" },
+          { "name": "offset", "in": "query", "schema": { "type": "integer", "default": 0 } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 100, "maximum": 500 } }
+        ],
+        "responses": { "200": { "description": "List of tasks", "content": { "application/json": { "schema": { "type": "object" } } } } }
+      }
+    },
+    "/tasks/{taskId}": {
+      "get": {
+        "operationId": "getTask",
+        "summary": "Get task details by ID",
+        "parameters": [
+          { "name": "taskId", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "Task details", "content": { "application/json": { "schema": { "type": "object" } } } } }
+      }
+    },
+    "/courses": {
+      "get": {
+        "operationId": "listCourses",
+        "summary": "List training programs",
+        "parameters": [
+          { "name": "includeClasses", "in": "query", "schema": { "type": "boolean" }, "description": "Include groups within each program" }
+        ],
+        "responses": { "200": { "description": "List of courses", "content": { "application/json": { "schema": { "type": "object" } } } } }
+      }
+    },
+    "/classes": {
+      "get": {
+        "operationId": "listClasses",
+        "summary": "List groups",
+        "parameters": [
+          { "name": "courseId", "in": "query", "schema": { "type": "integer" }, "description": "Filter by program ID" },
+          { "name": "filialId", "in": "query", "schema": { "type": "integer" }, "description": "Filter by branch ID" }
+        ],
+        "responses": { "200": { "description": "List of groups", "content": { "application/json": { "schema": { "type": "object" } } } } }
+      }
+    },
+    "/classes/{classId}": {
+      "get": {
+        "operationId": "getClass",
+        "summary": "Get group details by ID",
+        "parameters": [
+          { "name": "classId", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "Group details", "content": { "application/json": { "schema": { "type": "object" } } } } }
+      }
+    },
+    "/lessons": {
+      "get": {
+        "operationId": "listLessons",
+        "summary": "List lessons (schedule)",
+        "parameters": [
+          { "name": "classId", "in": "query", "schema": { "type": "integer" }, "description": "Filter by group ID" },
+          { "name": "teacherId", "in": "query", "schema": { "type": "integer" }, "description": "Filter by teacher ID" },
+          { "name": "userId", "in": "query", "schema": { "type": "integer" }, "description": "Filter by enrolled student ID" },
+          { "name": "statusId", "in": "query", "schema": { "type": "integer", "enum": [0, 1] }, "description": "0 = not conducted, 1 = conducted" },
+          { "name": "offset", "in": "query", "schema": { "type": "integer", "default": 0 } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 100, "maximum": 500 } },
+          { "name": "sort", "in": "query", "schema": { "type": "string", "enum": ["id", "date", "status", "createdAt"] } },
+          { "name": "sortDirection", "in": "query", "schema": { "type": "string", "enum": ["asc", "desc"] } }
+        ],
+        "responses": { "200": { "description": "List of lessons", "content": { "application/json": { "schema": { "type": "object" } } } } }
+      }
+    },
+    "/lessons/{lessonId}": {
+      "get": {
+        "operationId": "getLesson",
+        "summary": "Get lesson details by ID",
+        "parameters": [
+          { "name": "lessonId", "in": "path", "required": true, "schema": { "type": "integer" } },
+          { "name": "includeRecords", "in": "query", "schema": { "type": "boolean" }, "description": "Include student attendance records" }
+        ],
+        "responses": { "200": { "description": "Lesson details", "content": { "application/json": { "schema": { "type": "object" } } } } }
+      }
+    },
+    "/lessonRecords": {
+      "get": {
+        "operationId": "listLessonRecords",
+        "summary": "List lesson attendance records",
+        "parameters": [
+          { "name": "userId", "in": "query", "schema": { "type": "integer" }, "description": "Filter by student ID" },
+          { "name": "lessonId", "in": "query", "schema": { "type": "integer" }, "description": "Filter by lesson ID" },
+          { "name": "classId", "in": "query", "schema": { "type": "integer" }, "description": "Filter by group ID" },
+          { "name": "visit", "in": "query", "schema": { "type": "boolean" }, "description": "true = attended, false = absent" },
+          { "name": "offset", "in": "query", "schema": { "type": "integer", "default": 0 } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 100, "maximum": 500 } }
+        ],
+        "responses": { "200": { "description": "List of attendance records", "content": { "application/json": { "schema": { "type": "object" } } } } }
+      }
+    },
+    "/lessonRecords/{recordId}": {
+      "get": {
+        "operationId": "getLessonRecord",
+        "summary": "Get attendance record details by ID",
+        "parameters": [
+          { "name": "recordId", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "Attendance record details", "content": { "application/json": { "schema": { "type": "object" } } } } }
+      }
+    },
+    "/userSubscriptions": {
+      "get": {
+        "operationId": "listUserSubscriptions",
+        "summary": "List student subscriptions",
+        "parameters": [
+          { "name": "userId", "in": "query", "schema": { "type": "integer" }, "description": "Filter by student ID" },
+          { "name": "statusId", "in": "query", "schema": { "type": "integer" }, "description": "1=inactive, 2=active, 3=frozen, 4=expired" },
+          { "name": "courseId", "in": "query", "schema": { "type": "integer" }, "description": "Filter by program ID" },
+          { "name": "offset", "in": "query", "schema": { "type": "integer", "default": 0 } },
+          { "name": "limit", "in": "query", "schema": { "type": "integer", "default": 100, "maximum": 500 } }
+        ],
+        "responses": { "200": { "description": "List of subscriptions", "content": { "application/json": { "schema": { "type": "object" } } } } }
+      }
+    },
+    "/userSubscriptions/{userSubscriptionId}": {
+      "get": {
+        "operationId": "getUserSubscription",
+        "summary": "Get subscription details by ID",
+        "parameters": [
+          { "name": "userSubscriptionId", "in": "path", "required": true, "schema": { "type": "integer" } }
+        ],
+        "responses": { "200": { "description": "Subscription details", "content": { "application/json": { "schema": { "type": "object" } } } } }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "ApiKey": {
+        "type": "http",
+        "scheme": "bearer",
+        "description": "Set to the value of MCP_AUTH_TOKEN from your Lambda environment."
+      }
+    }
+  }
+}
