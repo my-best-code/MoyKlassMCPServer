@@ -10,9 +10,6 @@ dist/
 ### VS Code ###
 .vscode/
 
-### Environment ###
-.env
-.env.local
-
-.claude/
+.claude
 CLAUDE.md
+/node_modules
