@@ -1,0 +1,162 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+
+Globals:
+  Function:
+    Timeout: 30
+    Runtime: nodejs24.x
+    MemorySize: 256
+
+Parameters:
+  MoyKlassApiKey:
+    Type: String
+    NoEcho: true
+  CrmApiUrl:
+    Type: String
+    Default: https://api.moyklass.com
+  McpAuthToken:
+    Type: String
+    NoEcho: true
+    Description: "Pre-shared Bearer token for Claude Desktop (Remote MCP) and ChatGPT Actions. Generate with: openssl rand -hex 32"
+
+Resources:
+  HttpApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: prod
+      CorsConfiguration:
+        AllowOrigins: ["*"]
+        AllowMethods: [GET, POST, DELETE, OPTIONS]
+        AllowHeaders: [Authorization, Content-Type]
+
+  McpFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: lambda.handler
+      CodeUri: dist/
+      AutoPublishAlias: live
+      ReservedConcurrentExecutions: 50
+      Environment:
+        Variables:
+          CRM_API_URL: !Ref CrmApiUrl
+          MOYKLASS_API_KEY: !Ref MoyKlassApiKey
+          MCP_AUTH_TOKEN: !Ref McpAuthToken
+      Events:
+        McpPost:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /mcp
+            Method: POST
+        McpGet:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /mcp
+            Method: GET
+        McpDelete:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /mcp
+            Method: DELETE
+        ResourceMetadata:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /oauth/resource-metadata
+            Method: GET
+        OidcDiscovery:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /.well-known/openid-configuration
+            Method: GET
+        OAuthRegister:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /oauth/register
+            Method: POST
+        OAuthAuthorize:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /oauth/authorize
+            Method: GET
+        OAuthToken:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref HttpApi
+            Path: /oauth/token
+            Method: POST
+
+  RestFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: rest-lambda.handler
+      CodeUri: dist/
+      AutoPublishAlias: live
+      ReservedConcurrentExecutions: 50
+      Environment:
+        Variables:
+          CRM_API_URL: !Ref CrmApiUrl
+          MOYKLASS_API_KEY: !Ref MoyKlassApiKey
+          MCP_AUTH_TOKEN: !Ref McpAuthToken
+      Events:
+        Joins:
+          Type: HttpApi
+          Properties: { ApiId: !Ref HttpApi, Path: /joins, Method: GET }
+        Join:
+          Type: HttpApi
+          Properties: { ApiId: !Ref HttpApi, Path: /joins/{joinId}, Method: GET }
+        Users:
+          Type: HttpApi
+          Properties: { ApiId: !Ref HttpApi, Path: /users, Method: GET }
+        User:
+          Type: HttpApi
+          Properties: { ApiId: !Ref HttpApi, Path: /users/{userId}, Method: GET }
+        UserTags:
+          Type: HttpApi
+          Properties: { ApiId: !Ref HttpApi, Path: /userTags, Method: GET }
+        Tasks:
+          Type: HttpApi
+          Properties: { ApiId: !Ref HttpApi, Path: /tasks, Method: GET }
+        Task:
+          Type: HttpApi
+          Properties: { ApiId: !Ref HttpApi, Path: /tasks/{taskId}, Method: GET }
+        Courses:
+          Type: HttpApi
+          Properties: { ApiId: !Ref HttpApi, Path: /courses, Method: GET }
+        Classes:
+          Type: HttpApi
+          Properties: { ApiId: !Ref HttpApi, Path: /classes, Method: GET }
+        Class:
+          Type: HttpApi
+          Properties: { ApiId: !Ref HttpApi, Path: /classes/{classId}, Method: GET }
+        Lessons:
+          Type: HttpApi
+          Properties: { ApiId: !Ref HttpApi, Path: /lessons, Method: GET }
+        Lesson:
+          Type: HttpApi
+          Properties: { ApiId: !Ref HttpApi, Path: /lessons/{lessonId}, Method: GET }
+        LessonRecords:
+          Type: HttpApi
+          Properties: { ApiId: !Ref HttpApi, Path: /lessonRecords, Method: GET }
+        LessonRecord:
+          Type: HttpApi
+          Properties: { ApiId: !Ref HttpApi, Path: /lessonRecords/{recordId}, Method: GET }
+        UserSubscriptions:
+          Type: HttpApi
+          Properties: { ApiId: !Ref HttpApi, Path: /userSubscriptions, Method: GET }
+        UserSubscription:
+          Type: HttpApi
+          Properties: { ApiId: !Ref HttpApi, Path: /userSubscriptions/{userSubscriptionId}, Method: GET }
+
+Outputs:
+  McpUrl:
+    Description: "URL for Claude Desktop Remote MCP"
+    Value: !Sub "https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com/prod/mcp"
+  RestApiUrl:
+    Description: "Base URL for ChatGPT GPT Actions (paste into openapi.json servers[0].url)"
+    Value: !Sub "https://${HttpApi}.execute-api.${AWS::Region}.amazonaws.com/prod"
